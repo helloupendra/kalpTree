@@ -4,18 +4,34 @@ import { Btn, FL } from "./UI";
 import { Ic } from "./Icons";
 
 // ─── IMAGE UPLOADER ───────────────────────────────────────────────
-export const ImageUploader = ({ images = [], onAdd, onRemove, label = "Images" }) => {
-  const ref = useRef(null);
-  const handleFiles = (e) => {
-    Array.from(e.target.files || []).forEach((f) => onAdd(URL.createObjectURL(f)));
+export const ImageUploader = ({
+  images = [],
+  onAdd,
+  onRemove,
+  label = "Images",
+}: any) => {
+  const ref = useRef<any>(null);
+  const handleFiles = (e: any) => {
+    Array.from(e.target.files || []).forEach((f) =>
+      onAdd(URL.createObjectURL(f)),
+    );
     e.target.value = "";
   };
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
         <FL>{label}</FL>
-        <Btn variant="outline" size="xs" onClick={() => ref.current?.click()}>+ Add</Btn>
-        <input ref={ref} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+        <Btn variant="outline" size="xs" onClick={() => ref.current?.click()}>
+          + Add
+        </Btn>
+        <input
+          ref={ref}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleFiles}
+        />
       </div>
       {images.length === 0 ? (
         <div
@@ -27,7 +43,10 @@ export const ImageUploader = ({ images = [], onAdd, onRemove, label = "Images" }
       ) : (
         <div className="grid grid-cols-4 gap-2">
           {images.map((url, i) => (
-            <div key={i} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100">
+            <div
+              key={i}
+              className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100"
+            >
               <img src={url} alt="" className="w-full h-full object-cover" />
               <button
                 onClick={() => onRemove(i)}

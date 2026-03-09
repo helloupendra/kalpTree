@@ -1,20 +1,63 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useStore } from "../context/StoreContext";
 import { emptyMasterActivity } from "../utils/helpers";
 import { cls } from "../utils/helpers";
 import { OPTIONS, ACT_BADGE } from "../utils/constants";
 import { Card, Btn, Inp, TA, Sel, FL, Modal, Badge } from "./UI";
 import { Ic } from "./Icons";
 import { ImageUploader } from "./ImageUploader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setMasterActivities,
+  deleteMasterActivity,
+  addMasterActivity,
+  updateMasterActivity,
+} from "@/hooks/slices/packages/PackagesSlice"; // adjust path as needed
+import { AppDispatch, RootState } from "@/store/store";
+
+// ─── TYPES ────────────────────────────────────────────────────────
+
+interface MasterActivity {
+  _id: string;
+  title: string;
+  description: string;
+  activityType: string;
+  defaultDuration: string;
+  location: string;
+  tags: string[];
+  images: string[];
+}
+
+type ModalMode = "create" | "edit";
+
+interface ModalState {
+  mode: ModalMode;
+  data: MasterActivity | null;
+}
+
+interface MasterActivityFormProps {
+  initial: MasterActivity | null;
+  onSave: (form: MasterActivity) => void;
+  onClose: () => void;
+}
 
 // ─── MASTER ACTIVITY FORM ─────────────────────────────────────────
-export const MasterActivityForm = ({ initial, onSave, onClose }) => {
-  const [form, setForm] = useState(initial || emptyMasterActivity());
-  const [tagIn, setTagIn] = useState("");
-  const upd = (f, v) => setForm((p) => ({ ...p, [f]: v }));
+
+export const MasterActivityForm = ({
+  initial,
+  onSave,
+  onClose,
+}: MasterActivityFormProps) => {
+  const [form, setForm] = useState<MasterActivity>(
+    initial ?? emptyMasterActivity(),
+  );
+  const [tagIn, setTagIn] = useState<string>("");
+
+  const upd = <K extends keyof MasterActivity>(
+    field: K,
+    value: MasterActivity[K],
+  ) => setForm((prev) => ({ ...prev, [field]: value }));
 
   return (
     <div className="p-6 space-y-4">
@@ -24,7 +67,9 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           <Inp
             placeholder="e.g. Amber Fort Guided Tour"
             value={form.title}
-            onChange={(e) => upd("title", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              upd("title", e.target.value)
+            }
           />
         </div>
         <div>
@@ -32,7 +77,9 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           <Sel
             options={OPTIONS.activityType}
             value={form.activityType}
-            onChange={(e) => upd("activityType", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              upd("activityType", e.target.value)
+            }
           />
         </div>
         <div>
@@ -40,7 +87,9 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           <Inp
             placeholder="e.g. 2 hrs"
             value={form.defaultDuration}
-            onChange={(e) => upd("defaultDuration", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              upd("defaultDuration", e.target.value)
+            }
           />
         </div>
         <div className="col-span-2">
@@ -48,7 +97,9 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           <Inp
             placeholder="e.g. Jaipur, Rajasthan"
             value={form.location}
-            onChange={(e) => upd("location", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              upd("location", e.target.value)
+            }
           />
         </div>
         <div className="col-span-2">
@@ -56,19 +107,24 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           <TA
             placeholder="Full description…"
             value={form.description}
-            onChange={(e) => upd("description", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              upd("description", e.target.value)
+            }
             rows={3}
           />
         </div>
       </div>
+
       <div>
         <FL optional>Tags</FL>
         <div className="flex gap-2 mb-2">
           <Inp
             placeholder="e.g. Heritage"
             value={tagIn}
-            onChange={(e) => setTagIn(e.target.value)}
-            onKeyDown={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setTagIn(e.target.value)
+            }
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
               if (e.key === "Enter" && tagIn.trim()) {
                 e.preventDefault();
                 upd("tags", [...form.tags, tagIn.trim()]);
@@ -112,16 +168,18 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
           ))}
         </div>
       </div>
+
       <ImageUploader
         images={form.images}
-        onAdd={(url) => upd("images", [...form.images, url])}
-        onRemove={(i) =>
+        onAdd={(url: string) => upd("images", [...form.images, url])}
+        onRemove={(i: number) =>
           upd(
             "images",
             form.images.filter((_, j) => j !== i),
           )
         }
       />
+
       <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
         <Btn variant="outline" onClick={onClose}>
           Cancel
@@ -139,8 +197,9 @@ export const MasterActivityForm = ({ initial, onSave, onClose }) => {
   );
 };
 
-// ─── MASTER ACTIVITIES PAGE ───────────────────────────────────────
-const typeCls = {
+// ─── CONSTANTS ────────────────────────────────────────────────────
+
+const typeCls: Record<string, string> = {
   meal: "text-amber-700 bg-amber-50 border-amber-200",
   sightseeing: "text-blue-700 bg-blue-50 border-blue-200",
   adventure: "text-emerald-700 bg-emerald-50 border-emerald-200",
@@ -150,14 +209,63 @@ const typeCls = {
   shopping: "text-rose-700 bg-rose-50 border-rose-200",
 };
 
-export const MasterActivitiesPage = () => {
-  const { packages, masterActivities } =
-    useSelector((state) => state.packages);
-  const [modal, setModal] = useState(null);
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("");
+// ─── API HELPERS ──────────────────────────────────────────────────
 
-  const filtered = masterActivities.filter((a) => {
+interface ApiResult {
+  success: boolean;
+  data?: MasterActivity[];
+  insertedId?: string;
+}
+
+const api = {
+  fetchAll: (): Promise<ApiResult> =>
+    fetch("/api/admin/activities").then((r) => r.json()),
+
+  create: (data: MasterActivity): Promise<ApiResult> =>
+    fetch("/api/admin/activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then((r) => r.json()),
+
+  update: (data: MasterActivity): Promise<ApiResult> =>
+    fetch("/api/admin/activities", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then((r) => r.json()),
+
+  delete: (id: string): Promise<ApiResult> =>
+    fetch(`/api/activities?id=${id}`, { method: "DELETE" }).then((r) =>
+      r.json(),
+    ),
+};
+
+// ─── MASTER ACTIVITIES PAGE ───────────────────────────────────────
+
+export const MasterActivitiesPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { packages, masterActivities } = useSelector(
+    (state: RootState) => state.packages,
+  );
+
+  const [modal, setModal] = useState<ModalState | null>(null);
+  const [search, setSearch] = useState<string>("");
+  const [filterType, setFilterType] = useState<string>("");
+
+  // ── Data fetching ──────────────────────────────────────────────
+  useEffect(() => {
+    const fetchActivities = async () => {
+      const result = await api.fetchAll();
+      if (result.success && result.data) {
+        dispatch(setMasterActivities(result.data));
+      }
+    };
+    fetchActivities();
+  }, [dispatch]);
+
+  // ── Derived state ──────────────────────────────────────────────
+  const filtered = masterActivities.filter((a: MasterActivity) => {
     const q = search.toLowerCase();
     return (
       (!q ||
@@ -167,56 +275,37 @@ export const MasterActivitiesPage = () => {
     );
   });
 
-  const usageCount = useMemo(() => {
-    const map = {};
-    masterActivities.forEach((a) => {
+  const usageCount = useMemo<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    masterActivities.forEach((a: any) => {
       map[a._id] = 0;
     });
-    packages.forEach((pkg) =>
-      pkg.itinerary.forEach((day) =>
-        day.activities.forEach((act) => {
-          if (act.activityRef && map[act.activityRef] !== undefined)
+    packages.forEach((pkg: any) =>
+      pkg.itinerary.forEach((day: any) =>
+        day.activities.forEach((act: any) => {
+          if (act.activityRef && map[act.activityRef] !== undefined) {
             map[act.activityRef]++;
+          }
         }),
       ),
     );
     return map;
   }, [masterActivities, packages]);
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      const res = await fetch("/api/activities");
-      const result = await res.json();
-      if (result.success) setMasterActivities(result.data);
-    };
-    fetchActivities();
-  }, []);
-
-  const handleSave = async (data) => {
+  // ── Handlers ──────────────────────────────────────────────────
+  const handleSave = async (data: MasterActivity) => {
+    if (!modal) return;
     try {
       if (modal.mode === "create") {
-        const res = await fetch("/api/activities", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-        if (result.success)
-          setMasterActivities((p) => [
-            ...p,
-            { ...data, _id: result.insertedId },
-          ]);
+        const result = await api.create(data);
+        if (result.success && result.insertedId) {
+          dispatch(addMasterActivity({ ...data, _id: result.insertedId }));
+        }
       } else {
-        const res = await fetch("/api/activities", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-        if (result.success)
-          setMasterActivities((p) =>
-            p.map((a) => (a._id === data._id ? data : a)),
-          );
+        const result = await api.update(data);
+        if (result.success) {
+          dispatch(updateMasterActivity(data));
+        }
       }
       setModal(null);
     } catch (err) {
@@ -224,45 +313,27 @@ export const MasterActivitiesPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    const count = usageCount[id] || 0;
-    if (
-      !window.confirm(
-        count > 0
-          ? `Used in ${count} package(s). Continue?`
-          : "Delete this master activity?",
-      )
-    )
-      return;
+  const handleDelete = async (id: string) => {
+    const count = usageCount[id] ?? 0;
+    const confirmed = window.confirm(
+      count > 0
+        ? `Used in ${count} package(s). Continue?`
+        : "Delete this master activity?",
+    );
+    if (!confirmed) return;
     try {
-      await fetch("/api/activities?id=" + id, { method: "DELETE" });
-      setMasterActivities((p) => p.filter((a) => a._id !== id));
+      await api.delete(id);
+      dispatch(deleteMasterActivity(id));
     } catch (err) {
       console.error("DELETE ERROR:", err);
     }
   };
 
+  const totalUsages = Object.values(usageCount).reduce((a, b) => a + b, 0);
+
+  // ── Render ─────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
-        <div className="text-blue-600 mt-0.5">
-          <Ic.Info />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-blue-900">
-            Master Activity Catalog — Global Reusable Records
-          </p>
-          <p className="text-xs text-blue-700 mt-0.5">
-            In production:{" "}
-            <code className="bg-blue-100 px-1 rounded">MasterActivity</code>{" "}
-            MongoDB collection. Packages reference activities via{" "}
-            <code className="bg-blue-100 px-1 rounded">
-              activityRef → ObjectId
-            </code>
-            .
-          </p>
-        </div>
-      </div>
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-48">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -272,7 +343,9 @@ export const MasterActivitiesPage = () => {
             className="pl-9"
             placeholder="Search activities…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setSearch(e.target.value)
+            }
           />
         </div>
         <Sel
@@ -280,7 +353,9 @@ export const MasterActivitiesPage = () => {
           options={OPTIONS.activityType}
           placeholder="All Types"
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setFilterType(e.target.value)
+          }
         />
         {filterType && (
           <Btn variant="ghost" size="sm" onClick={() => setFilterType("")}>
@@ -295,14 +370,15 @@ export const MasterActivitiesPage = () => {
           New Activity
         </Btn>
       </div>
+
       <div className="space-y-3">
         {filtered.length === 0 && (
           <div className="py-16 text-center border-2 border-dashed border-gray-200 rounded-xl">
             <p className="text-gray-400 text-sm">No activities found</p>
           </div>
         )}
-        {filtered.map((act) => {
-          const usage = usageCount[act._id] || 0;
+        {filtered.map((act: any) => {
+          const usage = usageCount[act._id] ?? 0;
           return (
             <Card key={act._id} className="p-4">
               <div className="flex items-start justify-between gap-4">
@@ -323,7 +399,7 @@ export const MasterActivitiesPage = () => {
                       <Badge
                         className={cls(
                           "border",
-                          typeCls[act.activityType] ||
+                          typeCls[act.activityType] ??
                             "bg-gray-50 text-gray-600 border-gray-200",
                         )}
                       >
@@ -355,7 +431,7 @@ export const MasterActivitiesPage = () => {
                     )}
                     {act.tags?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {act.tags.map((t) => (
+                        {act.tags.map((t: string) => (
                           <span
                             key={t}
                             className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"
@@ -386,10 +462,11 @@ export const MasterActivitiesPage = () => {
           );
         })}
       </div>
+
       <p className="text-xs text-gray-400 text-center">
-        {masterActivities.length} master activities ·{" "}
-        {Object.values(usageCount).reduce((a, b) => a + b, 0)} total usages
+        {masterActivities.length} master activities · {totalUsages} total usages
       </p>
+
       <Modal
         open={!!modal}
         onClose={() => setModal(null)}
@@ -400,7 +477,7 @@ export const MasterActivitiesPage = () => {
         }
       >
         <MasterActivityForm
-          initial={modal?.data}
+          initial={modal?.data ?? null}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

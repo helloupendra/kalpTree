@@ -1,5 +1,6 @@
 // ─── UTILS ────────────────────────────────────────────────────────
-export const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+export const uid = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
 export const cls = (...a) => a.filter(Boolean).join(" ");
 
@@ -41,7 +42,9 @@ export const resolveHotel = (dayHotel, masters) => {
     hotelName: m?.hotelName || "Unknown Hotel",
     city: m?.city || "",
     starRating: m?.starRating || "5",
-    images: dayHotel.customImages?.length ? dayHotel.customImages : m?.images || [],
+    images: dayHotel.customImages?.length
+      ? dayHotel.customImages
+      : m?.images || [],
     roomType: dayHotel.customRoomType || m?.roomTypes?.[0] || "",
     notes: dayHotel.customNotes || "",
     isLinked: !!m,

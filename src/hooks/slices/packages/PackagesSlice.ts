@@ -2,18 +2,18 @@ import { INIT_PACKAGES } from "@/components/admin/Packages/utils/mockData";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // ─── TYPES ────────────────────────────────────────────────────────
-interface Price {
+export interface Price {
   currency: string;
   amount: string | number;
 }
 
-interface MealInclusions {
+export interface MealInclusions {
   breakfast: boolean;
   lunch: boolean;
   dinner: boolean;
 }
 
-interface DayActivity {
+export interface DayActivity {
   id: string;
   activityRef: string | null;
   time: string;
@@ -25,7 +25,7 @@ interface DayActivity {
   coverTitle: string;
 }
 
-interface DayHotel {
+export interface DayHotel {
   id: string;
   hotelRef: string | null;
   customRoomType: string;
@@ -36,7 +36,7 @@ interface DayHotel {
   mealInclusions: MealInclusions;
 }
 
-interface Transfer {
+export interface Transfer {
   id: string;
   transferType: string;
   vehicleType: string;
@@ -47,7 +47,7 @@ interface Transfer {
   notes: string;
 }
 
-interface ItineraryDay {
+export interface ItineraryDay {
   id: string;
   dayNumber: number;
   title: string;
@@ -55,38 +55,38 @@ interface ItineraryDay {
   dayType: string;
   mealsIncluded: string[];
   notes: string;
-  description: string;
+  description?: string;
   hotelStays: DayHotel[];
   transfers: Transfer[];
   activities: DayActivity[];
 }
 
-interface QuickInfo {
+export interface QuickInfo {
   destinationsCovered: string;
   duration: string;
   startPoint: string;
   endPoint: string;
 }
 
-interface AdditionalInfo {
+export interface AdditionalInfo {
   aboutDestination: string;
   quickInfo: QuickInfo;
   experiencesCovered: string[];
   notToMiss: string[];
 }
 
-interface FAQ {
+export interface FAQ {
   id: string;
   question: string;
   answer: string;
 }
 
-interface KnowBeforeYouGo {
+export interface KnowBeforeYouGo {
   id: string;
   point: string;
 }
 
-interface Package {
+export interface Package {
   id: string;
   title: string;
   destination: string;
@@ -111,7 +111,7 @@ interface Package {
   createdAt: string;
 }
 
-interface MasterActivity {
+export interface MasterActivity {
   _id: string;
   title: string;
   description: string;
@@ -122,7 +122,7 @@ interface MasterActivity {
   images: string[];
 }
 
-interface MasterHotel {
+export interface MasterHotel {
   _id: string;
   hotelName: string;
   city: string;
@@ -133,7 +133,7 @@ interface MasterHotel {
   images: string[];
 }
 
-interface PackageState {
+export interface PackageState {
   packages: Package[];
   masterActivities: MasterActivity[];
   masterHotels: MasterHotel[];

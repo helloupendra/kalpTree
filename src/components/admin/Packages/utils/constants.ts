@@ -100,7 +100,7 @@ export const CURRENCIES = [
 ];
 
 // ─── STYLE MAPS ───────────────────────────────────────────────────
-export const DAY_GRAD = {
+export const DAY_GRAD: any = {
   arrival: "from-emerald-900 to-emerald-800",
   sightseeing: "from-blue-950 to-blue-900",
   transfer: "from-orange-900 to-orange-800",
@@ -108,7 +108,7 @@ export const DAY_GRAD = {
   departure: "from-slate-800 to-slate-700",
 };
 
-export const DAY_BADGE = {
+export const DAY_BADGE: any = {
   arrival: "bg-emerald-100 text-emerald-800 border-emerald-200",
   sightseeing: "bg-sky-100 text-sky-800 border-sky-200",
   transfer: "bg-orange-100 text-orange-800 border-orange-200",
@@ -116,7 +116,7 @@ export const DAY_BADGE = {
   departure: "bg-slate-100 text-slate-700 border-slate-200",
 };
 
-export const ACT_DOT = {
+export const ACT_DOT: any = {
   meal: "bg-amber-500",
   sightseeing: "bg-blue-600",
   adventure: "bg-emerald-600",
@@ -126,7 +126,7 @@ export const ACT_DOT = {
   shopping: "bg-rose-500",
 };
 
-export const ACT_BADGE = {
+export const ACT_BADGE: any = {
   meal: "bg-amber-50 text-amber-800",
   sightseeing: "bg-blue-50 text-blue-800",
   adventure: "bg-emerald-50 text-emerald-800",

@@ -1,5 +1,11 @@
+import {
+  MasterActivity,
+  MasterHotel,
+  Package,
+} from "@/hooks/slices/packages/PackagesSlice";
+
 // ─── MOCK DATA ────────────────────────────────────────────────────
-export const INIT_ACTIVITIES = [
+export const INIT_ACTIVITIES: MasterActivity[] = [
   {
     _id: "ma-001",
     title: "Amber Fort Guided Tour",
@@ -57,7 +63,7 @@ export const INIT_ACTIVITIES = [
   },
 ];
 
-export const INIT_HOTELS = [
+export const INIT_HOTELS: MasterHotel[] = [
   {
     _id: "mh-001",
     hotelName: "The Layar Private Villas",
@@ -112,7 +118,7 @@ export const INIT_HOTELS = [
   },
 ];
 
-export const INIT_PACKAGES = [
+export const INIT_PACKAGES: Package[] = [
   {
     id: "pkg-001",
     title: "Bali Royal Escape",
