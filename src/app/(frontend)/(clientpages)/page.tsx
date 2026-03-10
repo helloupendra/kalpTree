@@ -18,11 +18,11 @@ export default async function MainHomePage({
   // Get the host header
   const headersList = await headers();
   const host = headersList.get("host");
-
+  const newHost= process.env.NEXT_PUBLIC_MAIN_HOST;
   // Check if it's localhost or main KalpTree domain
   const isLocalhost = host?.startsWith("localhost") || host?.startsWith("127.0.0.1");
-  const isMainKalpTree = host === "kalptree.xyz" || host === "www.kalptree.xyz";
-
+  const isMainKalpTree = host === "kalptree.xyz" || host === "www.kalptree.xyz" ||host==newHost;
+  console.log("host name", host)
   // If not localhost or main domain, show the custom domain page (PageTemplate)
   // console.log("params", params);
 
