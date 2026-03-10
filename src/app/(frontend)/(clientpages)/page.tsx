@@ -21,7 +21,7 @@ export default async function MainHomePage({
 
   // Check if it's localhost or main KalpTree domain
   const isLocalhost = host?.startsWith("localhost") || host?.startsWith("127.0.0.1");
-  const isMainKalpTree = host === "kalptree.xyz" || host === "www.kalptree.xyz";
+  const isMainKalpTree = host === "kalptree.xyz" || host === "www.kalptree.xyz" ||host=="https://kalptree.theworldstreet.in";
 
   // If not localhost or main domain, show the custom domain page (PageTemplate)
   // console.log("params", params);
